@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/book_social_network
-    username: username
-    password: password
+    url: jdbc:postgresql://localhost:5432/book_network
+    username: root
+    password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -12,7 +12,7 @@ spring:
       hibernate:
         format_sql: true
     database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   mail:
     host: localhost
     port: 1025
@@ -24,7 +24,7 @@ spring:
           trust: "*"
         auth: true
         starttls:
-          enable: true
+          enabled: true
         connectiontimeout: 5000
         timeout: 3000
         writetimeout: 5000
@@ -34,6 +34,14 @@ application:
     jwt:
       secret-key: 82e5193c9943be3d930f2dd968aadad833274555bdeb9b76f7db46eee30c6ba8
       expiration: 8640000
+      refresh-token:
+        expiration: 604800000
   mailing:
     frontend:
       activation-url: http://localhost:4200/activate-account
+  file:
+    uploads:
+      photos-output-path: ./uploads
+
+server:
+  port: 8088
