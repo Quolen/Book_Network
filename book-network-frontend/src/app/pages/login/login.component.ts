@@ -43,8 +43,10 @@ export class LoginComponent {
         console.log(err);
         if (err.error.validationErrors) {
           this.errorMsg = err.error.validationErrors;
-        } else {
+        } else if (err.error.error) {
           this.errorMsg.push(err.error.error);
+        } else {
+          this.errorMsg = ['Unknown error'];
         }
       }
     });
