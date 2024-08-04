@@ -12,8 +12,6 @@ import {StrictHttpResponse} from '../strict-http-response';
 import {BookResponse} from '../models/book-response';
 import {BorrowBook$Params} from '../fn/book/borrow-book';
 import {FindAllBooks$Params} from '../fn/book/find-all-books';
-import {findAllBooksByOwner} from '../fn/book/find-all-books-by-owner';
-import {FindAllBooksByOwner$Params} from '../fn/book/find-all-books-by-owner';
 import {findAllBorrowedBooks} from '../fn/book/find-all-borrowed-books';
 import {FindAllBorrowedBooks$Params} from '../fn/book/find-all-borrowed-books';
 import {findAllReturnedBooks} from '../fn/book/find-all-returned-books';
@@ -26,14 +24,13 @@ import {returnApprovedBorrowBook} from '../fn/book/return-approved-borrow-book';
 import {ReturnApprovedBorrowBook$Params} from '../fn/book/return-approved-borrow-book';
 import {returnBorrowBook} from '../fn/book/return-borrow-book';
 import {ReturnBorrowBook$Params} from '../fn/book/return-borrow-book';
-import {saveBook} from '../fn/book/save-book';
-import {SaveBook$Params} from '../fn/book/save-book';
 import {updateArchivedStatus} from '../fn/book/update-archived-status';
 import {UpdateArchivedStatus$Params} from '../fn/book/update-archived-status';
 import {updateShareableStatus} from '../fn/book/update-shareable-status';
 import {UpdateShareableStatus$Params} from '../fn/book/update-shareable-status';
 import {uploadBookCoverPicture} from '../fn/book/upload-book-cover-picture';
 import {UploadBookCoverPicture$Params} from '../fn/book/upload-book-cover-picture';
+import {BookRequest} from "../models/book-request";
 
 @Injectable({providedIn: 'root'})
 export class BookService extends BaseService {
@@ -99,8 +96,9 @@ export class BookService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  saveBook$Response(params: SaveBook$Params, context?: HttpContext): Observable<StrictHttpResponse<number>> {
-    return saveBook(this.http, this.rootUrl, params, context);
+  saveBook$Response(bookRequest: BookRequest, context?: HttpContext): Observable<HttpResponse<number>> {
+    const url = `${this.rootUrl}${BookService.SaveBookPath}`;
+    return this.http.post<number>(url, bookRequest, { observe: 'response', context });
   }
 
   /**
@@ -109,9 +107,12 @@ export class BookService extends BaseService {
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  saveBook(params: SaveBook$Params, context?: HttpContext): Observable<number> {
-    return this.saveBook$Response(params, context).pipe(
-      map((r: StrictHttpResponse<number>): number => r.body)
+  saveBook(bookRequest: BookRequest, context?: HttpContext): Observable<number> {
+    return this.saveBook$Response(bookRequest, context).pipe(
+      map((response: HttpResponse<number>): number => {
+        console.log('SaveBook Response:', response); // Optional logging for debugging
+        return response.body!;
+      })
     );
   }
 
@@ -331,8 +332,9 @@ export class BookService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  findAllBooksByOwner$Response(params?: FindAllBooksByOwner$Params, context?: HttpContext): Observable<StrictHttpResponse<PageResponseBookResponse>> {
-    return findAllBooksByOwner(this.http, this.rootUrl, params, context);
+  findAllBooksByOwner$Response(params?: any, context?: HttpContext): Observable<HttpResponse<PageResponseBookResponse>> {
+    const url = `${this.rootUrl}${BookService.FindAllBooksByOwnerPath}`;
+    return this.http.get<PageResponseBookResponse>(url, { params, observe: 'response', context });
   }
 
   /**
@@ -341,9 +343,9 @@ export class BookService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  findAllBooksByOwner(params?: FindAllBooksByOwner$Params, context?: HttpContext): Observable<PageResponseBookResponse> {
+  findAllBooksByOwner(params?: any, context?: HttpContext): Observable<PageResponseBookResponse> {
     return this.findAllBooksByOwner$Response(params, context).pipe(
-      map((r: StrictHttpResponse<PageResponseBookResponse>): PageResponseBookResponse => r.body)
+      map((response: HttpResponse<PageResponseBookResponse>): PageResponseBookResponse => response.body!)
     );
   }
 
