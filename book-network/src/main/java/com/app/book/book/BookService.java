@@ -8,6 +8,7 @@ import com.app.book.history.BookTransactionHistoryRepository;
 import com.app.book.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookService {
 
     private final BookRepository bookRepository;
@@ -157,11 +159,13 @@ public class BookService {
                 .orElseThrow(() -> new EntityNotFoundException("Book not found with id: " + bookId));
         User user = ((User) connectedUser.getPrincipal());
 
+        log.info(user.getId().toString());
+
         if (!book.isShareable() || book.isArchived()) {
             throw new OperationNotPermittedException("You cannot borrow archived or non shareable book");
         }
 
-        if (!Objects.equals(book.getOwner().getId(), user.getId())) {
+        if (Objects.equals(book.getOwner().getId(), user.getId())) {
             throw new OperationNotPermittedException("You cannot borrow your own book");
         }
 
