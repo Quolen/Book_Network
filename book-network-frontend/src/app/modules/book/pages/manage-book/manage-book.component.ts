@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {BookRequest} from "../../../../service/models/book-request";
 import {FormsModule} from "@angular/forms";
-import {Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {BookService} from "../../../../service/services/book.service";
 import {NgForOf, NgIf} from "@angular/common";
 
@@ -17,7 +17,7 @@ import {NgForOf, NgIf} from "@angular/common";
   templateUrl: './manage-book.component.html',
   styleUrl: './manage-book.component.scss'
 })
-export class ManageBookComponent {
+export class ManageBookComponent implements OnInit {
 
   errorMsg: Array<string> = [];
   bookRequest: BookRequest = {
@@ -31,7 +31,31 @@ export class ManageBookComponent {
 
   constructor(
     private bookService: BookService,
-    private router: Router) {
+    private router: Router,
+    private activatedRoute: ActivatedRoute) {
+  }
+
+  ngOnInit(): void {
+    const bookId = this.activatedRoute.snapshot.params['bookId'];
+    if (bookId) {
+      this.bookService.getBookById({
+        'book-id': bookId
+      }).subscribe({
+        next: (book) => {
+          this.bookRequest = {
+            id: book.id,
+            title: book.title as string,
+            authorName: book.author as string,
+            isbn: book.isbn as string,
+            synopsis: book.synopsis as string,
+            shareable: book.shareable
+          }
+          if (book.cover) {
+            this.selectedPicture = 'data:image/jpg;base64,' + book.cover;
+          }
+        }
+      });
+    }
   }
 
   saveBook() {
